@@ -5,12 +5,13 @@ import orderVideo from '../assets/truck.webm';
 
 function Cart() {
     const [cartItems, setCartItems] = useState([]);
+    const [removing, setRemoving] = useState(null); // Track the item being removed
     const [totals, setTotals] = useState({
         totalPrice: 0,
         totalDiscount: 0,
-        deliveryCharge: 0,
+        deliveryCharge: 50,
     });
-    const [showVideo, setShowVideo] = useState(false); // State to control video display
+    const [showVideo, setShowVideo] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,6 +30,7 @@ function Cart() {
 
             items.push({
                 ...prod,
+                quantity: 1, // Initialize quantity as 1
                 finalPrice: total - discount,
             });
         }
@@ -37,34 +39,84 @@ function Cart() {
         setTotals({
             totalPrice,
             totalDiscount,
-            deliveryCharge: 50, // Example static delivery charge
+            deliveryCharge: 50,
         });
     }, []);
 
+    const updateTotals = (updatedItems) => {
+        let totalPrice = 0;
+        let totalDiscount = 0;
+
+        updatedItems.forEach((item) => {
+            const discount = Math.round(item.price * (item.discountPercentage / 100)) * item.quantity;
+            const total = Math.round(item.price) * item.quantity;
+
+            totalPrice += total;
+            totalDiscount += discount;
+        });
+
+        setTotals({
+            totalPrice,
+            totalDiscount,
+            deliveryCharge: 50,
+        });
+    };
+
+    const incrementQuantity = (id) => {
+        const updatedItems = cartItems.map((item) =>
+            item.id === id
+                ? {
+                      ...item,
+                      quantity: item.quantity + 1, // Increment quantity
+                  }
+                : item
+        );
+        setCartItems(updatedItems);
+        updateTotals(updatedItems); // Recalculate totals
+    };
+
+    const decrementQuantity = (id) => {
+        const updatedItems = cartItems.map((item) =>
+            item.id === id && item.quantity > 1
+                ? {
+                      ...item,
+                      quantity: item.quantity - 1, // Decrement quantity but not below 1
+                  }
+                : item
+        );
+        setCartItems(updatedItems);
+        updateTotals(updatedItems); // Recalculate totals
+    };
+
     const removeProd = (id) => {
-        localStorage.removeItem(id);
-        setCartItems(cartItems.filter(item => item.id !== id));
+        setRemoving(id); // Mark the item for removal animation
+        setTimeout(() => {
+            const updatedItems = cartItems.filter((item) => item.id !== id);
+            localStorage.removeItem(id);
+            setCartItems(updatedItems);
+            updateTotals(updatedItems);
+            setRemoving(null); // Reset removing state
+        }, 500); // Match the animation duration in CSS
     };
 
     const handleOrder = () => {
-        setShowVideo(true); // Show the video
+        setShowVideo(true);
     };
 
     const goToHome = () => {
-        navigate('/'); // Navigate to the home page
+        navigate('/');
     };
 
     if (showVideo) {
         return (
             <div className="video-fullscreen">
                 <video src={orderVideo} autoPlay loop muted className="video" />
-                <button onClick={goToHome} className="home-button">Go to Home</button>
+                <button onClick={goToHome} className="home-button">
+                    Go to Home
+                </button>
             </div>
         );
     }
-
-
-    
 
     return (
         <div className="cart-section">
@@ -76,13 +128,16 @@ function Cart() {
 
                 <div className="cart-section-container">
                     {cartItems.map((prod, index) => (
-                        <div className="cart-section-card" key={index}>
+                        <div
+                            className={`cart-section-card ${removing === prod.id ? 'removing' : ''}`}
+                            key={index}
+                        >
                             <div className="cart-section-imgdiv">
                                 <img className="cart-section-img" src={prod.thumbnail} alt={prod.title} />
                                 <div className="cart-section-quantity">
-                                    <button>-</button>
-                                    <h6>1</h6>
-                                    <button>+</button>
+                                    <button onClick={() => decrementQuantity(prod.id)}>-</button>
+                                    <h6>{prod.quantity}</h6>
+                                    <button onClick={() => incrementQuantity(prod.id)}>+</button>
                                 </div>
                             </div>
                             <div className="cart-section-info">
@@ -90,13 +145,17 @@ function Cart() {
                                 <h5>{prod.description}</h5>
                                 <div className="cart-section-seller">
                                     <h5>{prod.brand}</h5>
-                                    <img className="cart-section-assure" src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" alt="Assured" />
+                                    <img
+                                        className="cart-section-assure"
+                                        src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png"
+                                        alt="Assured"
+                                    />
                                 </div>
                                 <div className="cart-section-prices">
                                     <h5 id="price2">₹{prod.price}</h5>
-                                    <h4>₹{prod.finalPrice}</h4>
+                                    <h4>₹{prod.finalPrice * prod.quantity}</h4>
                                     <h5>{prod.discountPercentage}% off</h5>
-                                    <h5>{prod.offers || "No offers"}</h5>
+                                    <h5>{prod.offers || 'No offers'}</h5>
                                 </div>
                                 <div className="cart-section-remove">
                                     <button onClick={() => removeProd(prod.id)}>REMOVE</button>
@@ -107,7 +166,9 @@ function Cart() {
                 </div>
 
                 <div className="cart-section-order">
-                    <button id="order" onClick={handleOrder}>ORDER</button>
+                    <button id="order" onClick={handleOrder}>
+                        ORDER
+                    </button>
                 </div>
             </div>
 

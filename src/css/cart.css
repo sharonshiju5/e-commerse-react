@@ -46,15 +46,13 @@ body{
     width: 100%;
     height: 200px;
     display: flex;
-    border: 1px solid rgba(146, 142, 142, 0.586);
+    border: 1px solid rgba(146, 142, 142, 0.174);
     transition: 0.5s;
 }
 .cart-section-card:hover{
     border-radius: 20px;
-    background-color: rgba(59, 58, 58, 0.337);
-    padding: 50px;
-    width: 83%;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px;
+    background-color: rgba(59, 58, 58, 0.134);
+    /* box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px; */
 }
 .cart-section-imgdiv{
     height: 100%;
@@ -121,6 +119,27 @@ h4,h5{
     background-color: transparent;
     border: transparent;
 }
+/* Card animation for removal */
+.cart-section-card.removing {
+    animation: remove-animation 0.5s ease forwards;
+}
+
+/* Keyframes for the animation */
+@keyframes remove-animation {
+    0% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.9) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+    }
+}
+
 .cart-section-order{
     height: 70px;
     width: 100%;
@@ -198,7 +217,26 @@ h4,h5{
     /* background-color: #d2d1d179; */
     z-index: 999999999999;
     /* margin-left: 700px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    background: linear-gradient(135deg, #f7c7d9, #a2c2e7); /* Gradient background */
+  animation: bgAnimation 8s infinite ease-in-out;/* Gradient background */
+    overflow: hidden;
 }
+@keyframes bgAnimation {
+    0% {
+      background: linear-gradient(135deg, #de46cd, #3adcfc);
+    }
+    50% {
+      background: linear-gradient(135deg, #3adcfc, #de46cd);
+    }
+    100% {
+      background: linear-gradient(135deg, #de46cd, #3adcfc);
+    }
+  }
 .video-fullscreen video{
     
 }

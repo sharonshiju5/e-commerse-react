@@ -3,20 +3,20 @@ import { Link } from "react-router-dom";
 import "../css/card.css";
 import animate from "../assets/ani.webm";
 
-const Card = () => {
+const Card = ({search}) => {
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true); // Add loading state
+    const [loading, setLoading] = useState(true); 
 
     useEffect(() => {
         fetch('https://dummyjson.com/products')
             .then(res => res.json())
             .then((out) => {
                 setData([...out.products]);
-                setLoading(false); // Stop loading once data is fetched
+                setLoading(false); 
             })
             .catch((error) => {
                 console.error("Error fetching data:", error);
-                setLoading(false); // Stop loading even if there's an error
+                setLoading(false); 
             });
     }, []);
 
@@ -24,14 +24,13 @@ const Card = () => {
         <div className="card-container">
             {loading ? (
                 <div className="loading-container">
-                    {/* Replace with your loading video or spinner */}
                     <video autoPlay loop muted>
                         <source src={animate} type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
                 </div>
             ) : (
-                data.map((dt) => (
+                data.filter((dt)=>dt.title.toLowerCase().includes(search.toLowerCase())).map((dt) => (
                     <Link to={`/card/${dt.id}`} key={dt.id}>
                         <div className="card">
                             <div className="image">
@@ -51,5 +50,4 @@ const Card = () => {
         </div>
     );
 };
-
 export default Card;

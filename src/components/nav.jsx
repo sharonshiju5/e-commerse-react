@@ -4,7 +4,7 @@ import cart1 from "../assets/cart1.webm"
 import search from "../assets/search.webm"
 import Animation from "./animation"
 import { Link } from "react-router-dom"
-function Nav(){
+function Nav({setSearch}){
     return(
         <div className="nav-container">
             <div className="nav">
@@ -13,7 +13,7 @@ function Nav(){
                 </div>
                 <div className="nav-div">
                     <div className="nav-search">
-                        <input type="text" placeholder="search...."/>
+                        <input onChange={(e)=>{setSearch(e.target.value)}} type="text" placeholder="search...."/>
                         <div className="nav-input-div">
                         </div>
                         <video src={search} autoPlay muted loop className="nav-input-div-video"></video>
